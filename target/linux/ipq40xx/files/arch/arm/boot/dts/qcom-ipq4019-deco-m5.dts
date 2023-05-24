@@ -6,20 +6,13 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/soc/qcom,tcsr.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	model = "TP-Link Deco M5";
 	compatible = "tplink,deco-m5", "qcom,ipq4019";
 
-	chosen {
-		bootargs-append = " root=/dev/mtdblock16";
-	};
-
 	aliases {
-		spi0 = "/soc/spi@78b5000";
-		spi1 = "/soc/spi@78b6000";
-		i2c0 = "/soc/i2c@78b7000";
-		i2c1 = "/soc/i2c@78b8000";
 		led-boot = &led_blue;
 		led-failsafe = &led_red;
 		led-running = &led_green;
@@ -39,32 +32,23 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_red: rgb_red {
-			label = "rgb:red";
+		led_red: led@0 {
 			gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
+			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_FAULT;
 		};
-
-		led_green: rgb_green {
-			label = "rgb:green";
+		led_green: led@1 {
 			gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_POWER;
 		};
-
-		led_blue: rgb_blue {
-			label = "rgb:blue";
+		led_blue: led@2 {
 			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+			color = <LED_COLOR_ID_BLUE>;
 		};
 	};
 
 	soc {
-		interrupt-controller@b000000 {
-			compatible = "qcom,msm-qgic2";
-			interrupt-controller;
-			#interrupt-cells = < 0x03 >;
-			reg = < 0xb000000 0x1000 0xb002000 0x1000 >;
-			linux,phandle = < 0x01 >;
-			phandle = < 0x01 >;
-		};
-
 		pinctrl@1000000 {
 			serial_0_pins: serial_0_pinmux {
 				pinmux {
@@ -86,18 +70,12 @@
 				pinmux {
 					pins = "gpio13", "gpio14", "gpio15";
 					function = "blsp_spi0";
+					drive-strength = <12>;
+					bias-disable;
 				};
 				pinmux_cs {
 					pins = "gpio12";
 					function = "gpio";
-				};
-				pinconf {
-					pins = "gpio13", "gpio14", "gpio15";
-					drive-strength = <12>;
-					bias-disable;
-				};
-				pinconf_cs {
-					pins = "gpio12";
 					drive-strength = <2>;
 					bias-disable;
 					output-high;
@@ -108,9 +86,6 @@
 				pinmux {
 					pins = "gpio20", "gpio21";
 					function = "blsp_i2c0";
-				};
-				pinconf {
-					pins = "gpio20", "gpio21";
 					drive-strength = <16>;
 					bias-disable;
 				};
@@ -142,106 +117,6 @@
 			};
 		};
 
-		blsp_dma: dma@7884000 {
-			status = "okay";
-		};
-
-		spi_0: spi@78b5000 {
-			pinctrl-0 = <&spi_0_pins>;
-			pinctrl-names = "default";
-			status = "okay";
-			cs-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
-
-			m25p80@0 {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				reg = <0>;
-				compatible = "jedec,spi-nor";
-				spi-max-frequency = <24000000>;
-
-				partitions {
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "fixed-partitions";
-
-					partition0@0 {
-						label = "0:SBL1";
-						reg = <0x00000000 0x00030000>;
-						read-only;
-					};
-					partition1@30000 {
-						label = "0:BOOTCONFIG";
-						reg = <0x00030000 0x00010000>;
-						read-only;
-					};
-					partition2@40000 {
-						label = "0:MIBIB";
-						reg = <0x00040000 0x00010000>;
-						read-only;
-					};
-					partition3@50000 {
-						label = "0:BOOTCONFIG1";
-						reg = <0x00050000 0x00010000>;
-						read-only;
-					};
-					partition4@60000 {
-						label = "0:QSEE";
-						reg = <0x00060000 0x00060000>;
-						read-only;
-					};
-					partition5@c0000 {
-						label = "0:CDT";
-						reg = <0x000c0000 0x00010000>;
-						read-only;
-					};
-					partition6@d0000 {
-						label = "0:DDRPARAMS";
-						reg = <0x000d0000 0x00010000>;
-						read-only;
-					};
-					partition7@e0000 {
-						label = "0:APPSBLENV";
-						reg = <0x000e0000 0x00010000>;
-						read-only;
-					};
-					partition8@f0000 {
-						label = "0:APPSBL";
-						reg = <0x000f0000 0x00080000>;
-						read-only;
-					};
-					partition9@170000 {
-						label = "0:ART";
-						reg = <0x00170000 0x00010000>;
-						read-only;
-					};
-					partition10@180000 {
-						label = "OPAQUE";
-						reg = <0x00180000 0x000c0000>;
-						read-only;
-					};
-					partition11@240000 {
-						label = "0:HLOS";
-						reg = <0x00240000 0x00300000>;
-						read-only;
-					};
-					partition12@540000 {
-						label = "0:rootfs";
-						reg = <0x00540000 0x007d0000>;
-						read-only;
-					};
-					partition13@d10000 {
-						label = "0:APPSBL_1";
-						reg = <0x00d10000 0x00080000>;
-						read-only;
-					};
-					partition14@d90000 {
-						label = "firmware";
-						reg = <0x00d90000 0x01040000>;
-					};
-				};
-			};
-		};
-
 		i2c_0: i2c@78b7000 {
 			pinctrl-0 = <&i2c_0_pins>;
 			pinctrl-names = "default";
@@ -267,38 +142,6 @@
 			status = "okay";
 		};
 
-		usb2: usb2@60f8800 {
-			status = "okay";
-		};
-
-		usb2_hs_phy: hsphy@a8000 {
-			status = "okay";
-		};
-
-		usb3: usb3@8af8800 {
-			status = "okay";
-		};
-
-		usb3_hs_phy: hsphy@a6000 {
-			status = "okay";
-		};
-
-		usb3_ss_phy: ssphy@9a000 {
-			status = "okay";
-		};
-
-		crypto@8e3a000 {
-			status = "okay";
-		};
-
-		cryptobam: dma@8e04000 {
-			status = "okay";
-		};
-
-		watchdog@b017000 {
-			status = "okay";
-		};
-
 		edma@c080000 {
 			status = "okay";
 
@@ -315,7 +158,7 @@
 			};
 		};
 
-        ess-switch@c000000 {
+		ess-switch@c000000 {
 			status = "okay";
 		};
 
@@ -326,10 +169,6 @@
 		};
 
 		ess-psgmii@98000 {
-			status = "okay";
-		};
-
-		mdio@90000 {
 			status = "okay";
 		};
 
@@ -344,17 +183,153 @@
 			reg = <0x1957000 0x100>;
 			qcom,wifi_noc_memtype_m0_m2 = <TCSR_WIFI_NOC_MEMTYPE_M0_M2>;
 		};
+	};
+};
 
-		wifi_0: wifi@a000000 {
-			pinctrl-0 = <&wifi_pins>;
-			pinctrl-names = "default";
-			qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
-			status = "okay";
-		};
+&blsp_dma {
+	status = "okay";
+};
 
-		wifi_1: wifi@a800000 {
-			qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
-			status = "okay";
+&blsp1_spi1 {
+	pinctrl-0 = <&spi_0_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+	cs-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+
+	m25p80@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <24000000>;
+
+		partitions {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "fixed-partitions";
+
+			partition@0 {
+				label = "0:SBL1";
+				reg = <0x00000000 0x00030000>;
+				read-only;
+			};
+			partition@30000 {
+				label = "0:BOOTCONFIG";
+				reg = <0x00030000 0x00010000>;
+				read-only;
+			};
+			partition@40000 {
+				label = "0:MIBIB";
+				reg = <0x00040000 0x00010000>;
+				read-only;
+			};
+			partition@50000 {
+				label = "0:BOOTCONFIG1";
+				reg = <0x00050000 0x00010000>;
+				read-only;
+			};
+			partition@60000 {
+				label = "0:QSEE";
+				reg = <0x00060000 0x00060000>;
+				read-only;
+			};
+			partition@c0000 {
+				label = "0:CDT";
+				reg = <0x000c0000 0x00010000>;
+				read-only;
+			};
+			partition@d0000 {
+				label = "0:DDRPARAMS";
+				reg = <0x000d0000 0x00010000>;
+				read-only;
+			};
+			partition@e0000 {
+				label = "0:APPSBLENV";
+				reg = <0x000e0000 0x00010000>;
+				read-only;
+			};
+			partition@f0000 {
+				label = "0:APPSBL";
+				reg = <0x000f0000 0x00080000>;
+				read-only;
+			};
+			partition@170000 {
+				label = "0:ART";
+				reg = <0x00170000 0x00010000>;
+				read-only;
+			};
+			partition@180000 {
+				label = "OPAQUE";
+				reg = <0x00180000 0x000c0000>;
+				read-only;
+			};
+			partition@240000 {
+				label = "0:HLOS";
+				reg = <0x00240000 0x00300000>;
+				read-only;
+			};
+			partition@540000 {
+				label = "0:rootfs";
+				reg = <0x00540000 0x007d0000>;
+				read-only;
+			};
+			partition@d10000 {
+				label = "0:APPSBL_1";
+				reg = <0x00d10000 0x00080000>;
+				read-only;
+			};
+			partition@d90000 {
+				label = "firmware";
+				reg = <0x00d90000 0x01040000>;
+			};
 		};
 	};
+};
+
+&crypto {
+	status = "okay";
+};
+
+&cryptobam {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+&usb2_hs_phy {
+	status = "okay";
+};
+
+&usb3 {
+	status = "okay";
+};
+
+&usb3_hs_phy {
+	status = "okay";
+};
+
+&usb3_ss_phy {
+	status = "okay";
+};
+
+&mdio {
+	status = "okay";
+};
+
+&watchdog {
+	status = "okay";
+};
+
+&wifi0 {
+	pinctrl-0 = <&wifi_pins>;
+	pinctrl-names = "default";
+	qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
+	status = "okay";
+};
+
+&wifi1 {
+	qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
+	status = "okay";
 };
