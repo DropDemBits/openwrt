@@ -36,6 +36,11 @@ preinit_set_mac_address() {
 		ip link set dev sw-eth1 address "$base_mac"
 		ip link set dev sw-eth2 address $(macaddr_add "$base_mac" 1)
 		;;
+	tplink,deco-m5)
+		base_mac=$(mtd_get_mac_binary "OPAQUE" 0x8)
+		ip link set dev eth0 address "${base_mac}"
+		ip link set dev eth1 address $(macaddr_add "$base_mac" 1)
+		;;
 	zyxel,nbg6617)
 		base_mac=$(cat /sys/class/net/eth0/address)
 		ip link set dev eth0 address $(macaddr_add "$base_mac" 2)

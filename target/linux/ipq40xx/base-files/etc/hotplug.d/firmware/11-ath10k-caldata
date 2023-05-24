@@ -139,6 +139,10 @@ case "$FIRMWARE" in
 	sony,ncp-hg100-cellular)
 		caldata_extract_mmc "0:ART" 0x1000 0x2f20
 		;;
+	tplink,deco-m5)
+		caldata_extract "0:ART" 0x1000 0x2f20
+		ath10k_patch_mac $(macaddr_add $(mtd_get_mac_binary "OPAQUE" 0x8) 2)
+		;;
 	zyxel,nbg6617 |\
 	zyxel,wre6606)
 		caldata_extract "ART" 0x1000 0x2f20
@@ -235,6 +239,10 @@ case "$FIRMWARE" in
 		;;
 	sony,ncp-hg100-cellular)
 		caldata_extract_mmc "0:ART" 0x5000 0x2f20
+		;;
+	tplink,deco-m5)
+		caldata_extract "0:ART" 0x1000 0x2f20
+		ath10k_patch_mac $(macaddr_add $(mtd_get_mac_binary "OPAQUE" 0x8) 3)
 		;;
 	zyxel,nbg6617 |\
 	zyxel,wre6606)
