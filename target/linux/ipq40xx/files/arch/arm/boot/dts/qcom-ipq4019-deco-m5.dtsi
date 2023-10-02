@@ -55,18 +55,6 @@
 			reg = <0x1953000 0x1000>;
 			qcom,ess-interface-select = <TCSR_ESS_PSGMII>;
 		};
-
-		edma@c080000 {
-			status = "okay";
-		};
-
-		ess-switch@c000000 {
-			status = "okay";
-		};
-
-		ess-psgmii@98000 {
-			status = "okay";
-		};
 	};
 };
 
@@ -312,19 +300,25 @@
 	status = "okay";
 };
 
-&gmac0 {
-	qcom,poll_required = <0x1>;
-	qcom,phy_mdio_addr = <0x4>;
-	vlan_tag = <0x2 0x20>;
+&gmac {
+	status = "okay";
+};
+
+&switch {
+	status = "okay";
+};
+
+&swport5 {
+	status = "okay";
+	label = "lan";
 
 	nvmem-cell-names = "mac-address";
 	nvmem-cells = <&macaddr_config_0>;
 };
 
-&gmac1 {
-	qcom,poll_required = <0x1>;
-	qcom,phy_mdio_addr = <0x3>;
-	vlan_tag = <0x1 0x1e>;
+&swport4 {
+	status = "okay";
+	label = "wan";
 
 	nvmem-cell-names = "mac-address";
 	nvmem-cells = <&macaddr_config_0>;
