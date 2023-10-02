@@ -41,6 +41,7 @@ ipq40xx_setup_interfaces()
 	mikrotik,cap-ac|\
 	netgear,wac510|\
 	sony,ncp-hg100-cellular|\
+	tplink,deco-m5|\
 	wallys,dr40x9|\
 	zte,mf18a|\
 	zte,mf289f)
@@ -104,9 +105,6 @@ ipq40xx_setup_interfaces()
 		;;
 	qxwlan,e2600ac-c2)
 		ucidef_set_interfaces_lan_wan "sw-eth1 sw-eth2" "sw-eth3"
-		;;
-	tplink,deco-m5)
-		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		;;
 	zte,mf286d)
 		ucidef_set_interfaces_lan_wan "lan2 lan3 lan4" "wan"
