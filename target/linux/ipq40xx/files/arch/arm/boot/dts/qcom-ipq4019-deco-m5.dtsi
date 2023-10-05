@@ -18,6 +18,7 @@
 		led-failsafe = &led_red;
 		led-running = &led_green;
 		led-upgrade = &led_red;
+		label-mac-device = &swport5;
 	};
 
 	keys {
