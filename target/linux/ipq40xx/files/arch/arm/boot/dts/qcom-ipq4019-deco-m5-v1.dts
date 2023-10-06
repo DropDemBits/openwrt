@@ -5,8 +5,8 @@
 #include "qcom-ipq4019-deco-m5.dtsi"
 
 / {
-	model = "TP-Link Deco M5";
-	compatible = "tplink,deco-m5", "qcom,ipq4019";
+	model = "TP-Link Deco M5 v1";
+	compatible = "tplink,deco-m5-v1";
 
 	leds {
 		compatible = "gpio-leds";
