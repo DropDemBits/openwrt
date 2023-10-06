@@ -18,7 +18,7 @@
 		led-failsafe = &led_red;
 		led-running = &led_green;
 		led-upgrade = &led_red;
-		label-mac-device = &swport5;
+		label-mac-device = &swport4;
 	};
 
 	keys {
@@ -309,7 +309,7 @@
 	status = "okay";
 };
 
-&swport5 {
+&swport4 {
 	status = "okay";
 	label = "lan";
 
@@ -317,7 +317,7 @@
 	nvmem-cells = <&macaddr_config_0>;
 };
 
-&swport4 {
+&swport5 {
 	status = "okay";
 	label = "wan";
 
