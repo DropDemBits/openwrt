@@ -20,19 +20,16 @@
 		compatible = "gpio-leds";
 
 		led_gpios_red: led@0 {
-			label = "red:fault";
 			gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
 			color = <LED_COLOR_ID_RED>;
 			function = LED_FUNCTION_FAULT;
 		};
 		led_gpios_green: led@1 {
-			label = "green:power";
 			gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_POWER;
 		};
 		led_gpios_blue: led@2 {
-			label = "blue:boot";
 			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_BOOT;
