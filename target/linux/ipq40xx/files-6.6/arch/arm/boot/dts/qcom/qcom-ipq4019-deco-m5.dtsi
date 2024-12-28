@@ -14,10 +14,6 @@
 	};
 
 	aliases {
-		led-boot = &led_blue;
-		led-failsafe = &led_red;
-		led-running = &led_green;
-		led-upgrade = &led_red;
 		label-mac-device = &swport4;
 	};
 
@@ -135,6 +131,39 @@
 	pinctrl-0 = <&i2c_0_pins>;
 	pinctrl-names = "default";
 	status = "okay";
+
+	led_driver: lp5521@32 {
+		compatible = "national,lp5521";
+		reg = <0x32>;
+		clock-mode = /bits/ 8 <2>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		led_driver_red: led@0 {
+			reg = <0>;
+			chan-name = "fault:red";
+			led-cur = /bits/ 8 <0x2f>;
+			max-cur = /bits/ 8 <0x5f>;
+			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_FAULT;
+		};
+		led_driver_green: led@1 {
+			reg = <1>;
+			chan-name = "power:green";
+			led-cur = /bits/ 8 <0x2f>;
+			max-cur = /bits/ 8 <0x5f>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_POWER;
+		};
+		led_driver_blue: led@2 {
+			reg = <2>;
+			chan-name = "boot:blue";
+			led-cur = /bits/ 8 <0x2f>;
+			max-cur = /bits/ 8 <0x5f>;
+			color = <LED_COLOR_ID_BLUE>;
+		};
+	};
 };
 
 &blsp1_uart1 {

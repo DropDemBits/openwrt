@@ -8,27 +8,14 @@
 	model = "TP-Link Deco M5 v1";
 	compatible = "tplink,deco-m5-v1";
 
-	leds {
-		compatible = "gpio-leds";
-
-		led_red: led-0 {
-			label = "red:fault";
-			gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
-			color = <LED_COLOR_ID_RED>;
-			function = LED_FUNCTION_FAULT;
-		};
-		led_green: led-1 {
-			label = "green:power";
-			gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
-			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_POWER;
-		};
-		led_blue: led-2 {
-			label = "blue:boot";
-			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
-			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_BOOT;
-		};
+	aliases {
+		led-boot = &led_driver_blue;
+		led-failsafe = &led_driver_red;
+		led-running = &led_driver_green;
+		led-upgrade = &led_driver_red;
 	};
+};
 
+&led_driver {
+	status = "okay";
 };

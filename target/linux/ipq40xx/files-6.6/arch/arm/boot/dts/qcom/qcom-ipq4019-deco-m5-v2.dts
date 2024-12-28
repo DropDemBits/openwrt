@@ -7,36 +7,15 @@
 / {
 	model = "TP-Link Deco M5 v2";
 	compatible = "tplink,deco-m5-v2";
+
+	aliases {
+		led-boot = &led_driver_blue;
+		led-failsafe = &led_driver_red;
+		led-running = &led_driver_green;
+		led-upgrade = &led_driver_red;
+	};
 };
 
-&blsp1_i2c3 {
-	lp5521@32 {
-		compatible = "national,lp5521";
-		reg = <0x32>;
-		clock-mode = /bits/ 8 <2>;
-
-		led_red: led-0 {
-			reg = <0>;
-			chan-name = "fault:red";
-			led-cur = /bits/ 8 <0x2f>;
-			max-cur = /bits/ 8 <0x5f>;
-			color = <LED_COLOR_ID_RED>;
-			function = LED_FUNCTION_FAULT;
-		};
-		led_green: led-1 {
-			reg = <1>;
-			chan-name = "power:green";
-			led-cur = /bits/ 8 <0x2f>;
-			max-cur = /bits/ 8 <0x5f>;
-			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_POWER;
-		};
-		led_blue: led-2 {
-			reg = <2>;
-			chan-name = "boot:blue";
-			led-cur = /bits/ 8 <0x2f>;
-			max-cur = /bits/ 8 <0x5f>;
-			color = <LED_COLOR_ID_BLUE>;
-		};
-	};
+&led_driver {
+	status = "okay";
 };
