@@ -6,7 +6,7 @@
 
 / {
 	model = "TP-Link Deco M5 v2";
-	compatible = "tplink,deco-m5-v2";
+	compatible = "tplink,deco-m5-v2", "qcom,ipq4019";
 
 	aliases {
 		led-boot = &led_driver_blue;
