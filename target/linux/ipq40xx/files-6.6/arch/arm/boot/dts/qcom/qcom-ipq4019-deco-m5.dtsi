@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: ISC
-// Copyright (c) 2015, The Linux Foundation. All rights reserved.
-// Copyright (c) 2021, Frank Veltmans <veltmans.frank@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 
 #include "qcom-ipq4019.dtsi"
 #include <dt-bindings/gpio/gpio.h>
