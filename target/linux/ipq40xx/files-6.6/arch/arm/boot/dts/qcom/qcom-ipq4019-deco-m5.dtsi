@@ -363,14 +363,12 @@
 &wifi0 {
 	pinctrl-0 = <&wifi_pins>;
 	pinctrl-names = "default";
-	qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
 	status = "okay";
 	nvmem-cell-names = "pre-calibration", "mac-address";
 	nvmem-cells = <&precal_art_1000>, <&macaddr_gmac0 2>;
 };
 
 &wifi1 {
-	qcom,ath10k-calibration-variant = "TP-Link_Deco_M5_EU_v3.0";
 	status = "okay";
 	nvmem-cell-names = "pre-calibration", "mac-address";
 	nvmem-cells = <&precal_art_5000>, <&macaddr_gmac0 3>;

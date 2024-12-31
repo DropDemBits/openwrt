@@ -36,3 +36,11 @@
 		};
 	};
 };
+
+&wifi0 {
+	qcom,ath10k-calibration-variant = "TP-Link-Deco-M5-v3";
+};
+
+&wifi1 {
+	qcom,ath10k-calibration-variant = "TP-Link-Deco-M5-v3";
+};
