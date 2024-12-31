@@ -306,24 +306,28 @@
 	status = "okay";
 };
 
-&usb2 {
+&prng {
 	status = "okay";
+};
+
+&usb2 {
+	status = "disabled";
 };
 
 &usb2_hs_phy {
-	status = "okay";
+	status = "disabled";
 };
 
 &usb3 {
-	status = "okay";
+	status = "disabled";
 };
 
 &usb3_hs_phy {
-	status = "okay";
+	status = "disabled";
 };
 
 &usb3_ss_phy {
-	status = "okay";
+	status = "disabled";
 };
 
 &mdio {
