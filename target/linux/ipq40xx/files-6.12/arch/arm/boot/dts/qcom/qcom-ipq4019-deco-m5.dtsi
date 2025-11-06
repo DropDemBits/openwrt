@@ -293,7 +293,7 @@
 			partition@d90000 {
 				label = "firmware";
 				compatible = "denx,fit";
-				reg = <0x00d90000 0x01040000>;
+				reg = <0x00d90000 0x01270000>;
 			};
 		};
 	};
