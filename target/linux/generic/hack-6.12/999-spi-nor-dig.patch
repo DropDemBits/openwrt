@@ -42,27 +42,33 @@ definitions.
  /**
 --- a/drivers/mtd/spi-nor/sfdp.c
 +++ b/drivers/mtd/spi-nor/sfdp.c
-@@ -1418,13 +1418,31 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+@@ -1416,15 +1416,36 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+ 	size_t psize;
+ 	int i, err;
  
++	// HACK: For deeper investigation, dump the raw table bytes
++#define PASTE (256)
++	u8 bytes[PASTE] = {};
++	memset(bytes, 0xCC, sizeof(bytes)/sizeof(bytes[0]));
++
  	/* Get the SFDP header. */
- 	err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(header), &header);
+-	err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(header), &header);
 -	if (err < 0)
++	err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(bytes), bytes);
 +	if (err < 0) {
 +		dev_warn(dev, "failed to execute RDSFDP command (not supported?)\n");
  		return err;
 +	}
 +
++	// HACK: Copy header from raw bytes
++	memcpy(&header, bytes, sizeof(header));
++
 +	if (true) {
-+		// HACK: For deeper investigation, dump the raw header bytes
-+#define PASTE (sizeof(header) + ((0x08 - (sizeof(header) & 0x07)) & 0x07))
-+		u8 bytes[PASTE] = {};
-+		memset(bytes, 0xCC, sizeof(bytes)/sizeof(bytes[0]));
-+		memcpy(bytes, &header, sizeof(header));
 +		const u8* ptr = (u8*)bytes;
 +
-+		dev_warn(dev, "raw SFDP header:\n");
++		dev_warn(dev, "raw SFDP table:\n");
 +		for (int i = 0; i < PASTE; i += 0x08) {
-+			dev_warn(dev, "%04x > %02x %02x %02x %02x %02x %02x %02x %02x\n", i, ptr[i+0], ptr[i+1], ptr[i+2], ptr[i+3], ptr[i+4], ptr[i+5], ptr[i+6], ptr[i+7]);
++			dev_warn(dev, "%04x > %02x %02x %02x %02x  %02x %02x %02x %02x\n", i, ptr[i+0], ptr[i+1], ptr[i+2], ptr[i+3], ptr[i+4], ptr[i+5], ptr[i+6], ptr[i+7]);
 +		}
 +	}
  
@@ -76,7 +82,7 @@ definitions.
  
  	/*
  	 * Verify that the first and only mandatory parameter header is a
-@@ -1432,8 +1450,10 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+@@ -1432,8 +1453,10 @@ int spi_nor_parse_sfdp(struct spi_nor *n
  	 */
  	bfpt_header = &header.bfpt_header;
  	if (SFDP_PARAM_HEADER_ID(bfpt_header) != SFDP_BFPT_ID ||
@@ -88,7 +94,7 @@ definitions.
  
  	sfdp_size = SFDP_PARAM_HEADER_PTP(bfpt_header) +
  		    SFDP_PARAM_HEADER_PARAM_LEN(bfpt_header);
-@@ -1459,7 +1479,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+@@ -1459,7 +1482,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
  		err = spi_nor_read_sfdp(nor, sizeof(header),
  					psize, param_headers);
  		if (err < 0) {
@@ -97,7 +103,7 @@ definitions.
  			goto exit;
  		}
  	}
-@@ -1480,7 +1500,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+@@ -1480,7 +1503,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
  	 * much memory just of because the flash returned some insane values.
  	 */
  	if (sfdp_size > PAGE_SIZE) {
@@ -106,7 +112,7 @@ definitions.
  			sfdp_size);
  		sfdp_size = PAGE_SIZE;
  	}
-@@ -1508,7 +1528,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+@@ -1508,7 +1531,7 @@ int spi_nor_parse_sfdp(struct spi_nor *n
  
  	err = spi_nor_read_sfdp(nor, 0, sfdp_size, sfdp->dwords);
  	if (err < 0) {
