@@ -1,0 +1,122 @@
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -3447,6 +3447,7 @@ int spi_nor_scan(struct spi_nor *nor, co
+ 	nor->reg_proto = SNOR_PROTO_1_1_1;
+ 	nor->read_proto = SNOR_PROTO_1_1_1;
+ 	nor->write_proto = SNOR_PROTO_1_1_1;
++	nor->sfdp_addr_nbytes = 0;
+ 
+ 	/*
+ 	 * We need the bounce buffer early to read/write registers when going
+--- a/drivers/mtd/spi-nor/sfdp.c
++++ b/drivers/mtd/spi-nor/sfdp.c
+@@ -175,7 +175,7 @@ static int spi_nor_read_raw(struct spi_n
+  *
+  * Whatever the actual numbers of bytes for address and dummy cycles are
+  * for (Fast) Read commands, the Read SFDP (5Ah) instruction is always
+- * followed by a 3-byte address and 8 dummy clock cycles.
++ * followed by either a 3-byte or 4-byte address and 8 dummy clock cycles.
+  *
+  * Return: 0 on success, -errno otherwise.
+  */
+@@ -190,7 +190,7 @@ static int spi_nor_read_sfdp(struct spi_
+ 	read_dummy = nor->read_dummy;
+ 
+ 	nor->read_opcode = SPINOR_OP_RDSFDP;
+-	nor->addr_nbytes = 3;
++	nor->addr_nbytes = nor->sfdp_addr_nbytes ?: 3;
+ 	nor->read_dummy = 8;
+ 
+ 	ret = spi_nor_read_raw(nor, addr, len, buf);
+@@ -1371,26 +1371,42 @@ static int spi_nor_post_sfdp_fixups(stru
+  * @nor:	pointer to a 'struct spi_nor'
+  *
+  * Used to detect if the flash supports the RDSFDP command as well as the
+- * presence of a valid SFDP table.
++ * presence of a valid SFDP table. This also detects which address mode to use
++ * when reading the SFDP table.
+  *
+  * Return: 0 on success, -errno otherwise.
+  */
+ int spi_nor_check_sfdp_signature(struct spi_nor *nor)
+ {
+-	u32 signature;
++	struct sfdp_header header;
+ 	int err;
++	u8 addr_nbytes;
++
++	if (nor->sfdp_addr_nbytes != 0)
++		return 0;
++
++	for(addr_nbytes = 3; addr_nbytes <= 4; ++addr_nbytes)
++	{
++		nor->sfdp_addr_nbytes = addr_nbytes;
++
++		/* Get the SFDP header. */
++		err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(header),
++						   &header);
++		if (err < 0)
++			continue;
++
++		/* Check the SFDP signature. */
++		if (le32_to_cpu(header.signature) == SFDP_SIGNATURE &&
++		    header.major == SFDP_JESD216_MAJOR)
++			return 0;
++	}
++
++	nor->sfdp_addr_nbytes = 0;
+ 
+-	/* Get the SFDP header. */
+-	err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(signature),
+-					   &signature);
+ 	if (err < 0)
+ 		return err;
+-
+-	/* Check the SFDP signature. */
+-	if (le32_to_cpu(signature) != SFDP_SIGNATURE)
++	else
+ 		return -EINVAL;
+-
+-	return 0;
+ }
+ 
+ /**
+@@ -1416,16 +1432,15 @@ int spi_nor_parse_sfdp(struct spi_nor *n
+ 	size_t psize;
+ 	int i, err;
+ 
++	/* Check the SFDP header version. */
++	if (err = spi_nor_check_sfdp_signature(nor))
++		return err;
++
+ 	/* Get the SFDP header. */
+ 	err = spi_nor_read_sfdp_dma_unsafe(nor, 0, sizeof(header), &header);
+ 	if (err < 0)
+ 		return err;
+ 
+-	/* Check the SFDP header version. */
+-	if (le32_to_cpu(header.signature) != SFDP_SIGNATURE ||
+-	    header.major != SFDP_JESD216_MAJOR)
+-		return -EINVAL;
+-
+ 	/*
+ 	 * Verify that the first and only mandatory parameter header is a
+ 	 * Basic Flash Parameter Table header as specified in JESD216.
+--- a/include/linux/mtd/spi-nor.h
++++ b/include/linux/mtd/spi-nor.h
+@@ -370,6 +370,7 @@ struct spi_nor_flash_parameter;
+  * @write_proto:	the SPI protocol for write operations
+  * @reg_proto:		the SPI protocol for read_reg/write_reg/erase operations
+  * @sfdp:		the SFDP data of the flash
++ * @sfdp_addr_nbytes:	number of address bytes to use when reading the SFDP data
+  * @debugfs_root:	pointer to the debugfs directory
+  * @controller_ops:	SPI NOR controller driver specific operations.
+  * @params:		[FLASH-SPECIFIC] SPI NOR flash parameters and settings.
+@@ -408,6 +409,7 @@ struct spi_nor {
+ 	u32			flags;
+ 	enum spi_nor_cmd_ext	cmd_ext_type;
+ 	struct sfdp		*sfdp;
++	u8			sfdp_addr_nbytes;
+ 	struct dentry		*debugfs_root;
+ 
+ 	const struct spi_nor_controller_ops *controller_ops;
